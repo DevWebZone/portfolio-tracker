@@ -1,0 +1,51 @@
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Word lock/temp files
+~$*
+
+# Logs
+*.log
+backend.log
+backend.err.log
+frontend.log
+frontend.err.log
+
+# Local tool/cache folders created during scaffolding
+.dotnet/
+.nuget/
+.templateengine/
+
+# .NET build output
+bin/
+obj/
+TestResults/
+*.user
+*.suo
+
+# Local databases
+*.db
+*.db-shm
+*.db-wal
+
+# Frontend dependencies/build output
+node_modules/
+dist/
+.vite/
+coverage/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Package manager debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

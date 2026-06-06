@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/backend/">
+    <Project Path="src/backend/PortfolioTracker.Api/PortfolioTracker.Api.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PortfolioTracker.Tests/PortfolioTracker.Tests.csproj" />
+  </Folder>
+</Solution>
