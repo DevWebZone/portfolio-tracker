@@ -113,6 +113,12 @@ npm.cmd run build
 - Generates alerts for price moves at `+5%`, `+10%`, `-5%`, and `-10%`.
 - Updates the dashboard through SignalR without polling.
 
+## Correctness of the Application
+- Added unit test cases and ensured they all passed
+- Performed Manual validation of the applicaton functionality and happy path.
+- Generated report for edge cases correctness [Edge cases and correctness report](docs/edge-cases-correctness-report.md) and test cases [Test cases report](docs/test-cases-report.md)
+- Asked AI agent to perform smoke test and integration tests to ensure APIs and SignalR connection are working
+
 ## Supporting Documents
 
 - [System design document](<Portfolio Tracker System Design.docx>)
