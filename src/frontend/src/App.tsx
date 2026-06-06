@@ -1,25 +1,19 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import {
   Alert,
   Box,
   Button,
-  ButtonGroup,
   Chip,
   CircularProgress,
   Container,
   CssBaseline,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  TextField,
   ThemeProvider,
   Tooltip,
   Typography,
   createTheme,
 } from '@mui/material'
 import Grid from '@mui/material/Grid'
-import { Activity, Bell, CircleDollarSign, RefreshCw, Send, TrendingUp, WalletCards } from 'lucide-react'
+import { Activity, Bell, CircleDollarSign, RefreshCw, TrendingUp, WalletCards } from 'lucide-react'
 import {
   Area,
   AreaChart,
@@ -36,7 +30,7 @@ import {
   YAxis,
 } from 'recharts'
 import './App.css'
-import { loadDashboard, submitTrade } from './store/portfolioSlice'
+import { loadDashboard } from './store/portfolioSlice'
 import { useAppDispatch, useAppSelector } from './store/hooks'
 import { usePortfolioHub } from './hooks/usePortfolioHub'
 
@@ -67,23 +61,12 @@ const chartColors = ['#2563eb', '#0f766e', '#b45309', '#7c3aed', '#be123c', '#04
 function App() {
   const dispatch = useAppDispatch()
   const { snapshot, prices, alerts, status, connectionStatus, error } = useAppSelector((state) => state.portfolio)
-  const [side, setSide] = useState<'buy' | 'sell'>('buy')
-  const [symbol, setSymbol] = useState('AAPL')
-  const [quantity, setQuantity] = useState('1')
-  const [price, setPrice] = useState('190')
 
   usePortfolioHub()
 
   useEffect(() => {
     void dispatch(loadDashboard())
   }, [dispatch])
-
-  useEffect(() => {
-    const selected = prices.find((item) => item.symbol === symbol)
-    if (selected && Number.isFinite(selected.currentPrice)) {
-      setPrice(String(Number(selected.currentPrice.toFixed(2))))
-    }
-  }, [prices, symbol])
 
   const exposureData = useMemo(
     () => snapshot?.holdings.map((holding) => ({ name: holding.symbol, value: holding.exposurePercent })) ?? [],
@@ -99,14 +82,6 @@ function App() {
       })) ?? [],
     [snapshot],
   )
-
-  const submit = () => {
-    const parsedQuantity = Number(quantity)
-    const parsedPrice = Number(price)
-    if (!symbol || parsedQuantity <= 0 || parsedPrice <= 0) return
-
-    void dispatch(submitTrade({ side, trade: { symbol, quantity: parsedQuantity, price: parsedPrice } }))
-  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -158,7 +133,7 @@ function App() {
               </Box>
 
               <Grid container spacing={2}>
-                <Grid size={{ xs: 12, lg: 8 }}>
+                <Grid size={{ xs: 12 }}>
                   <Panel title="Holdings">
                     <Box className="table-wrap">
                       <table>
@@ -192,30 +167,6 @@ function App() {
                           ))}
                         </tbody>
                       </table>
-                    </Box>
-                  </Panel>
-                </Grid>
-
-                <Grid size={{ xs: 12, lg: 4 }}>
-                  <Panel title="Trade Ticket">
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <ButtonGroup fullWidth>
-                        <Button variant={side === 'buy' ? 'contained' : 'outlined'} onClick={() => setSide('buy')}>Buy</Button>
-                        <Button variant={side === 'sell' ? 'contained' : 'outlined'} color="secondary" onClick={() => setSide('sell')}>Sell</Button>
-                      </ButtonGroup>
-                      <FormControl fullWidth size="small">
-                        <InputLabel>Symbol</InputLabel>
-                        <Select value={symbol} label="Symbol" onChange={(event) => setSymbol(event.target.value)}>
-                          {prices.map((item) => (
-                            <MenuItem key={item.symbol} value={item.symbol}>{item.symbol}</MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                      <TextField size="small" label="Quantity" type="number" value={quantity} onChange={(event) => setQuantity(event.target.value)} />
-                      <TextField size="small" label="Price" type="number" value={price} onChange={(event) => setPrice(event.target.value)} />
-                      <Button variant="contained" endIcon={<Send size={17} />} onClick={submit}>
-                        Submit {side}
-                      </Button>
                     </Box>
                   </Panel>
                 </Grid>

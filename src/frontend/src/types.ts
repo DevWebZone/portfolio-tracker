@@ -1,6 +1,5 @@
 export type AssetType = 'Equity' | 'Crypto'
 export type AlertSeverity = 'Warning' | 'Critical'
-export type TransactionSide = 'Buy' | 'Sell'
 
 export interface MarketPrice {
   symbol: string
@@ -43,25 +42,4 @@ export interface PortfolioSnapshot {
   holdings: Holding[]
   latestAlerts: Alert[]
   updatedAt: string
-}
-
-export interface TradeRequest {
-  userId: string
-  symbol: string
-  quantity: number
-  price: number
-}
-
-export interface TradeResult {
-  transaction: {
-    id: string
-    userId: string
-    symbol: string
-    side: TransactionSide
-    quantity: number
-    price: number
-    realizedPnL: number
-    executedAt: string
-  }
-  portfolio: PortfolioSnapshot
 }

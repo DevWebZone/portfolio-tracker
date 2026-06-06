@@ -20,12 +20,6 @@ public enum AlertSeverity
     Critical
 }
 
-public enum TransactionSide
-{
-    Buy,
-    Sell
-}
-
 public class Asset
 {
     public Guid Id { get; set; } = Guid.NewGuid();
@@ -62,16 +56,4 @@ public class Alert
     public string Direction { get; set; } = string.Empty;
     public AlertSeverity Severity { get; set; }
     public DateTime TriggeredAt { get; set; } = DateTime.UtcNow;
-}
-
-public class Transaction
-{
-    public Guid Id { get; set; } = Guid.NewGuid();
-    public string UserId { get; set; } = DemoUser.UserId;
-    public string Symbol { get; set; } = string.Empty;
-    public TransactionSide Side { get; set; }
-    public decimal Quantity { get; set; }
-    public decimal Price { get; set; }
-    public decimal RealizedPnL { get; set; }
-    public DateTime ExecutedAt { get; set; } = DateTime.UtcNow;
 }

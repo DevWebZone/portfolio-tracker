@@ -35,7 +35,7 @@
   - .NET 10 Web API
   - EF Core SQLite persistence
   - seeded demo portfolio
-  - buy/sell APIs
+  - read-only portfolio APIs
   - portfolio calculations
   - market simulator
   - alert engine
@@ -46,7 +46,7 @@
   - Material UI dashboard
   - Recharts visualizations
   - SignalR client integration
-  - buy/sell trade ticket
+  - static portfolio monitoring UI
 - Implemented and ran backend tests for core portfolio and alert behavior.
 - Ran frontend production builds to verify TypeScript and bundling correctness.
 
@@ -312,3 +312,40 @@ generate a readme file containing instructions to run the app locally and requir
 ### Implementation Notes
 
 - Add a root README with application overview, prerequisites, local run instructions, verification commands, and supporting document links.
+
+## 2026-06-06 00:00 IST - User
+
+### Prompt
+
+```text
+generate a test cases report for the added test cases and their status
+```
+
+### Implementation Notes
+
+- Generate a test cases report documenting the implemented xUnit tests and current pass/fail status.
+
+## 2026-06-06 00:00 IST - User
+
+### Prompt
+
+```text
+Buy/Sell functionality was not required for this version of the application. keep a static portfolio with initialized values
+```
+
+### Implementation Notes
+
+- Remove buy/sell functionality from version 1 and keep the app focused on a static initialized portfolio with live market updates, exposure, P&L, and alerts.
+
+## 2026-06-06 00:00 IST - User
+
+### Prompt
+
+```text
+include test cases for - Empty portfolio snapshot returns zero totals safely. 
+- Alert generation at +10%, -5%, and -10%.
+```
+
+### Implementation Notes
+
+- Add tests for empty portfolio snapshots and additional alert thresholds. 

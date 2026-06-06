@@ -26,40 +26,27 @@ public class PortfolioServiceTests : IDisposable
     }
 
     [Fact]
-    public async Task Buy_creates_new_position_and_records_transaction()
+    public async Task Snapshot_returns_seeded_static_holdings()
     {
         var service = new PortfolioService(_factory);
 
-        var result = await service.BuyAsync(new TradeRequest(DemoUser.UserId, "AAPL", 5, 200));
+        var snapshot = await service.GetPortfolioAsync(DemoUser.UserId);
 
-        Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Value);
-        Assert.Equal(TransactionSide.Buy, result.Value.Transaction.Side);
-        Assert.Contains(result.Value.Portfolio.Holdings, holding => holding.Symbol == "AAPL" && holding.Quantity == 30);
+        Assert.Equal(4, snapshot.Holdings.Count);
+        Assert.Contains(snapshot.Holdings, holding => holding.Symbol == "AAPL" && holding.Quantity == 25);
+        Assert.Contains(snapshot.Holdings, holding => holding.Symbol == "MSFT" && holding.Quantity == 12);
+        Assert.Contains(snapshot.Holdings, holding => holding.Symbol == "BTC" && holding.Quantity == 0.18m);
+        Assert.Contains(snapshot.Holdings, holding => holding.Symbol == "ETH" && holding.Quantity == 1.5m);
     }
 
     [Fact]
-    public async Task Sell_reduces_position_and_calculates_realized_pnl()
+    public async Task Snapshot_has_zero_realized_pnl_for_static_portfolio()
     {
         var service = new PortfolioService(_factory);
 
-        var result = await service.SellAsync(new TradeRequest(DemoUser.UserId, "AAPL", 5, 200));
+        var snapshot = await service.GetPortfolioAsync(DemoUser.UserId);
 
-        Assert.True(result.IsSuccess);
-        Assert.NotNull(result.Value);
-        Assert.Equal(138.25m, result.Value.Transaction.RealizedPnL);
-        Assert.Contains(result.Value.Portfolio.Holdings, holding => holding.Symbol == "AAPL" && holding.Quantity == 20);
-    }
-
-    [Fact]
-    public async Task Sell_rejects_oversell()
-    {
-        var service = new PortfolioService(_factory);
-
-        var result = await service.SellAsync(new TradeRequest(DemoUser.UserId, "ETH", 50, 3500));
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Sell quantity exceeds the current position.", result.Error);
+        Assert.Equal(0, snapshot.RealizedPnL);
     }
 
     [Fact]
@@ -75,6 +62,25 @@ public class PortfolioServiceTests : IDisposable
     }
 
     [Fact]
+    public async Task Snapshot_returns_zero_totals_for_empty_portfolio()
+    {
+        await using var db = _factory.CreateDbContext();
+        db.Positions.RemoveRange(db.Positions.Where(position => position.UserId == DemoUser.UserId));
+        await db.SaveChangesAsync();
+
+        var service = new PortfolioService(_factory);
+
+        var snapshot = await service.GetPortfolioAsync(DemoUser.UserId);
+
+        Assert.Empty(snapshot.Holdings);
+        Assert.Equal(0, snapshot.TotalValue);
+        Assert.Equal(0, snapshot.CostValue);
+        Assert.Equal(0, snapshot.UnrealizedPnL);
+        Assert.Equal(0, snapshot.RealizedPnL);
+        Assert.Equal(0, snapshot.PnLPercent);
+    }
+
+    [Fact]
     public async Task Alert_service_triggers_threshold_once_per_day()
     {
         var service = new AlertService(_factory, new InMemoryAlertDeduplicationStore());
@@ -86,6 +92,32 @@ public class PortfolioServiceTests : IDisposable
         Assert.Single(first);
         Assert.Empty(second);
         Assert.Equal(AlertSeverity.Warning, first[0].Severity);
+    }
+
+    [Theory]
+    [InlineData(10.25, "+", AlertSeverity.Warning, AlertSeverity.Critical, 2)]
+    [InlineData(-5.25, "-", AlertSeverity.Warning, null, 1)]
+    [InlineData(-10.25, "-", AlertSeverity.Warning, AlertSeverity.Critical, 2)]
+    public async Task Alert_service_generates_expected_threshold_alerts(
+        decimal movePercent,
+        string direction,
+        AlertSeverity firstSeverity,
+        AlertSeverity? secondSeverity,
+        int expectedCount)
+    {
+        var service = new AlertService(_factory, new InMemoryAlertDeduplicationStore());
+        var price = new PriceUpdatedEvent("MSFT", 0, 100, movePercent, DateTime.UtcNow);
+
+        var alerts = await service.EvaluateAsync(price);
+
+        Assert.Equal(expectedCount, alerts.Count);
+        Assert.All(alerts, alert => Assert.Equal(direction, alert.Direction));
+        Assert.Contains(alerts, alert => alert.Threshold == 5 && alert.Severity == firstSeverity);
+
+        if (secondSeverity is not null)
+        {
+            Assert.Contains(alerts, alert => alert.Threshold == 10 && alert.Severity == secondSeverity);
+        }
     }
 
     public void Dispose() => _connection.Dispose();

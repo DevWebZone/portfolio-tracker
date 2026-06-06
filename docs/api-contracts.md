@@ -3,19 +3,8 @@
 ## Portfolio
 
 - `GET /api/portfolio/demo-user`
-- `POST /api/portfolio/buy`
-- `POST /api/portfolio/sell`
 
-Trade request body:
-
-```json
-{
-  "userId": "demo-user",
-  "symbol": "AAPL",
-  "quantity": 5,
-  "price": 105.42
-}
-```
+The first version exposes a read-only initialized portfolio. Buy and sell operations are intentionally out of scope for this version.
 
 ## Market
 

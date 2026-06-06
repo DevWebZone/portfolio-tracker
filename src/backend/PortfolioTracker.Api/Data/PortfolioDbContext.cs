@@ -9,7 +9,6 @@ public class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options) : 
     public DbSet<Position> Positions => Set<Position>();
     public DbSet<MarketPrice> MarketPrices => Set<MarketPrice>();
     public DbSet<Alert> Alerts => Set<Alert>();
-    public DbSet<Transaction> Transactions => Set<Transaction>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,9 +28,5 @@ public class PortfolioDbContext(DbContextOptions<PortfolioDbContext> options) : 
         modelBuilder.Entity<Alert>().Property(alert => alert.Symbol).HasMaxLength(20);
         modelBuilder.Entity<Alert>().Property(alert => alert.Direction).HasMaxLength(8);
         modelBuilder.Entity<Alert>().Property(alert => alert.Severity).HasConversion<string>();
-
-        modelBuilder.Entity<Transaction>().Property(transaction => transaction.UserId).HasMaxLength(100);
-        modelBuilder.Entity<Transaction>().Property(transaction => transaction.Symbol).HasMaxLength(20);
-        modelBuilder.Entity<Transaction>().Property(transaction => transaction.Side).HasConversion<string>();
     }
 }

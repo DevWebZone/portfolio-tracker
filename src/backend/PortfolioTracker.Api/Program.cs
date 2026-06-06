@@ -63,32 +63,10 @@ app.MapGet("/api/portfolio/{userId}", async (string userId, PortfolioService ser
 {
     if (!DemoUser.IsAllowed(userId))
     {
-        return Results.NotFound(new { message = "Only demo-user is available in the MVP." });
+        return Results.NotFound(new { message = "Only demo-user is available in version 1." });
     }
 
     return Results.Ok(await service.GetPortfolioAsync(userId));
-});
-
-app.MapPost("/api/portfolio/buy", async (TradeRequest request, PortfolioService service) =>
-{
-    if (!DemoUser.IsAllowed(request.UserId))
-    {
-        return Results.BadRequest(new { message = "Only demo-user is available in the MVP." });
-    }
-
-    var result = await service.BuyAsync(request);
-    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(new { message = result.Error });
-});
-
-app.MapPost("/api/portfolio/sell", async (TradeRequest request, PortfolioService service) =>
-{
-    if (!DemoUser.IsAllowed(request.UserId))
-    {
-        return Results.BadRequest(new { message = "Only demo-user is available in the MVP." });
-    }
-
-    var result = await service.SellAsync(request);
-    return result.IsSuccess ? Results.Ok(result.Value) : Results.BadRequest(new { message = result.Error });
 });
 
 app.MapGet("/api/market/prices", async (MarketService service) =>
@@ -98,7 +76,7 @@ app.MapGet("/api/alerts/{userId}", async (string userId, AlertService service) =
 {
     if (!DemoUser.IsAllowed(userId))
     {
-        return Results.NotFound(new { message = "Only demo-user is available in the MVP." });
+        return Results.NotFound(new { message = "Only demo-user is available in version 1." });
     }
 
     return Results.Ok(await service.GetAlertsAsync(userId));

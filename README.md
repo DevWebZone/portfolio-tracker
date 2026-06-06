@@ -107,9 +107,9 @@ npm.cmd run build
 
 - Loads a seeded demo portfolio for `demo-user`.
 - Simulates live prices for AAPL, MSFT, BTC, and ETH.
-- Calculates total portfolio value, cost value, unrealized P&L, realized P&L, P&L percentage, and asset exposure.
-- Supports buy and sell actions.
-- Rejects oversells.
+- Calculates total portfolio value, cost value, unrealized P&L, P&L percentage, and asset exposure.
+- Shows realized P&L as 0 in this read-only first version.
+- Presents a static initialized portfolio for the first version.
 - Generates alerts for price moves at `+5%`, `+10%`, `-5%`, and `-10%`.
 - Updates the dashboard through SignalR without polling.
 
@@ -119,6 +119,7 @@ npm.cmd run build
 - [Architecture overview](docs/architecture.md)
 - [API contracts](docs/api-contracts.md)
 - [Edge cases and correctness report](docs/edge-cases-correctness-report.md)
+- [Test cases report](docs/test-cases-report.md)
 - [Prompt and AI artifact log](PROMPTS.md)
 
 ## Repository Notes

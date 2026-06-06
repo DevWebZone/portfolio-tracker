@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { api } from '../api/client'
-import type { Alert, MarketPrice, PortfolioSnapshot, TradeRequest } from '../types'
+import type { Alert, MarketPrice, PortfolioSnapshot } from '../types'
 
 interface PortfolioState {
   snapshot: PortfolioSnapshot | null
@@ -28,14 +28,6 @@ export const loadDashboard = createAsyncThunk('portfolio/loadDashboard', async (
   ])
   return { snapshot, prices, alerts }
 })
-
-export const submitTrade = createAsyncThunk(
-  'portfolio/submitTrade',
-  async ({ side, trade }: { side: 'buy' | 'sell'; trade: Omit<TradeRequest, 'userId'> }) => {
-    const result = side === 'buy' ? await api.buy(trade) : await api.sell(trade)
-    return result.portfolio
-  },
-)
 
 const portfolioSlice = createSlice({
   name: 'portfolio',
@@ -79,13 +71,6 @@ const portfolioSlice = createSlice({
       .addCase(loadDashboard.rejected, (state, action) => {
         state.status = 'error'
         state.error = action.error.message ?? 'Unable to load dashboard'
-      })
-      .addCase(submitTrade.fulfilled, (state, action) => {
-        state.snapshot = action.payload
-        state.alerts = action.payload.latestAlerts
-      })
-      .addCase(submitTrade.rejected, (state, action) => {
-        state.error = action.error.message ?? 'Trade failed'
       })
   },
 })
