@@ -2,9 +2,9 @@
 
 ## Summary
 
-This report documents expected scenarios and expected behavior for the current staged MVP implementation. The app uses a fixed `demo-user`, SQLite persistence, simulated market prices, in-process realtime events, SignalR, and in-memory alert deduplication.
+This report documents expected scenarios and expected behavior for the first version of the Portfolio Tracker application. The app uses a fixed `demo-user`, SQLite persistence, simulated market prices, in-process realtime events, SignalR, and in-memory alert deduplication.
 
-Overall correctness is solid for the core happy path: seeded portfolio load, buy/sell validation, average-cost updates, realized/unrealized P&L, exposure, market ticks, alert generation, and realtime UI updates. The main known limitations are local-MVP choices: no authentication, no transaction isolation around concurrent trades, alert deduplication resets after process restart, and frontend error state is not cleared after successful trades.
+Overall correctness is solid for the core happy path: seeded portfolio load, buy/sell validation, average-cost updates, realized/unrealized P&L, exposure, market ticks, alert generation, and realtime UI updates. The main known limitations are first-version choices: no authentication, no transaction isolation around concurrent trades, alert deduplication resets after process restart, and frontend error state is not cleared after successful trades.
 
 ## Scenario Matrix
 
@@ -13,7 +13,7 @@ Overall correctness is solid for the core happy path: seeded portfolio load, buy
 | Startup | First backend start with empty SQLite DB | Create schema and seed AAPL, MSFT, BTC, ETH prices and demo positions. | `EnsureCreated` and `SeedData` perform this. | Correct |
 | Startup | Restart backend with existing DB | Do not duplicate seeded assets, prices, or positions. | Seed checks prevent duplication by table/user existence. | Correct |
 | User scope | `GET /api/portfolio/demo-user` | Return the demo portfolio snapshot. | Returns snapshot with holdings, totals, P&L, exposure, alerts. | Correct |
-| User scope | Any non-demo user | Reject because auth is deferred. | Returns 404 for reads and 400 for trades. | Correct for MVP |
+| User scope | Any non-demo user | Reject because auth is deferred. | Returns 404 for reads and 400 for trades. | Correct for v1 |
 | Buy | Valid buy for existing symbol | Increase existing quantity, recalculate weighted average buy price, add buy transaction, return updated snapshot. | Implemented. | Correct |
 | Buy | Valid buy for symbol not currently held but present in assets | Create new position and transaction. | Implemented. | Correct |
 | Buy | Unknown symbol | Reject with clear error. | Rejects with `Unknown symbol {symbol}.` | Correct |
@@ -35,7 +35,7 @@ Overall correctness is solid for the core happy path: seeded portfolio load, buy
 | Exposure | Rounded exposure totals | Exposure may sum to 99.99 or 100.01 due to rounding. | Expected from per-row rounding. | Acceptable |
 | Market simulator | Periodic price updates | Update each market price every 2 seconds using bounded random movement. | Implemented. | Correct |
 | Market simulator | Price approaches zero | Prevent non-positive prices. | Uses minimum price `0.01`. | Correct |
-| Market simulator | Opening price | Preserve opening price for move calculations. | Opening price remains seeded value. | Correct for MVP |
+| Market simulator | Opening price | Preserve opening price for move calculations. | Opening price remains seeded value. | Correct for v1 |
 | Market simulator | New trading day | Opening price should reset for a new trading day. | Not implemented. | Known gap |
 | Alerts | Move reaches +5% or -5% | Generate Warning alert. | Implemented. | Correct |
 | Alerts | Move reaches +10% or -10% | Generate Critical alert. | Implemented. | Correct |
@@ -56,11 +56,11 @@ Overall correctness is solid for the core happy path: seeded portfolio load, buy
 | Data integrity | Concurrent buys/sells for same position | Apply atomically and avoid lost updates. | No explicit transaction/concurrency token. | Known gap |
 | Data integrity | Duplicate asset symbols | Prevent duplicate symbols. | Unique index configured. | Correct |
 | Data integrity | Duplicate user-position symbol | Prevent duplicate position row per user/symbol. | Unique index configured. | Correct |
-| Data integrity | Decimal precision | Preserve reasonable financial precision. | Uses `decimal`; no explicit SQL precision in SQLite. | Acceptable for MVP |
+| Data integrity | Decimal precision | Preserve reasonable financial precision. | Uses `decimal`; no explicit SQL precision in SQLite. | Acceptable for v1 |
 
 ## Correctness Rules
 
-- Only `demo-user` is valid in the MVP.
+- Only `demo-user` is valid in the first version.
 - Trade symbols are canonicalized to uppercase on the backend.
 - A buy increases position quantity and recalculates average buy price using weighted average cost.
 - A sell calculates realized P&L as `(sell price - average buy price) * sold quantity`.
